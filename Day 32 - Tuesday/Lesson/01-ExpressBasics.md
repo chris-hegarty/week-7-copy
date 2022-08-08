@@ -20,7 +20,6 @@ const port = 3000;
 app.get("/", (req, res) => res.send("Hello World!"));
 //I make a request, they send a response.
 // When the app makes a request to this route (A GET request to slash) do this thing.
-//middleware - what happens between the request and response, like checking an API key.
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 ```
@@ -88,6 +87,7 @@ Middleware - what happens between the request and response, like checking an API
 ## So what if you want all routes for `/users` to go through an authorization process of some sorts ahead of time, Or some other functionality?
 
 Middleware to the rescue!
+Middleware: What happens between the request and response, like checking an API key.
 
 - Sometimes you want to make custom functionality. Let's say you want to take every request to the servers `/users` routes and check to see if a token/api key matched
 - You COULD declare that function at each call inside the callback. But instead you could declare it as a standalone function:

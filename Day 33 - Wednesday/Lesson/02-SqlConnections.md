@@ -5,23 +5,27 @@
   ```javascript
   let mysql = require("mysql");
   let connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
+  	host: process.env.DB_HOST,
+  	user: process.env.DB_USER,
+  	password: process.env.DB_PASSWORD,
+  	database: process.env.DB_DATABASE,
   });
 
   connection.connect();
 
   connection.query(
-    "SELECT * from todos where user_id = ? AND completed = ?",
-    [userId, 1],
-    function (err, rows, fields) {
-      if (err) throw err;
+  	"SELECT * from todos where user_id = ? AND completed = ?",
+  	[userId, 1],
+  	function (err, rows, fields) {
+  		if (err) throw err;
 
-      console.log("The first todo is:", rows[0]);
-    }
+  		console.log("The first todo is:", rows[0]);
+  	},
   );
+
+  //The array after the "Select" query matches the question marks, in order. It "sanitizes" it..wont treat it as SQL.
+  // Rows are alway in an array.
+  //****NOTE: SQL uses "0" and "1" for booleans.
 
   connection.end();
 

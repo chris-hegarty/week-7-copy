@@ -1,38 +1,50 @@
 # Pooling
 
-There are a LOT of different things to bear in mind with pooling but what is pooling? Simply put, if you have a single connection, you have to connect, make the query, then disconnect for EVERY query. This can cause a huge server load. So what you can do is pool the connections. Basically you have (in the example below) 10 open connections. If one person calls the API they use a pre-opened pooled connection, make their query and then it is released back to the pool. If there are 10 people using the connections and then an 11th connects, they're added to a queue and then when one of the 10 in use is released they will use that one and the pattern will continue.
+There are a LOT of different things to bear in mind with pooling but what is pooling? Simply put, if you have a single connection, you have to connect, make the query, then disconnect for EVERY query.
+
+This can cause a huge server load. So what you can do is pool the connections.
+
+Basically you have (in the example below) 10 open connections. If one person calls the API they use a pre-opened pooled connection, make their query and then it is released back to the pool.
+
+If there are 10 people using the connections and then an 11th connects, they're added to a queue and then when one of the 10 in use is released they will use that one and the pattern will continue.
 
 - In the Database conf file:
 
   ```javascript
   let mysql = require("mysql");
   let pool = mysql.createPool({
-    connectionLimit: 10,
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
+  	connectionLimit: 10,
+  	host: process.env.DB_HOST,
+  	user: process.env.DB_USER,
+  	password: process.env.DB_PASSWORD,
+  	database: process.env.DB_DATABASE,
   });
 
   pool.getConnection((err, connection) => {
-    if (err) {
-      if (err.code === "PROTOCOL_CONNECTION_LOST") {
-        console.error("Database connection was closed.");
-      }
-      if (err.code === "ER_CON_COUNT_ERROR") {
-        console.error("Database has too many connections.");
-      }
-      if (err.code === "ECONNREFUSED") {
-        console.error("Database connection was refused.");
-      }
-    }
+  	if (err) {
+  		if (err.code === "PROTOCOL_CONNECTION_LOST") {
+  			console.error("Database connection was closed.");
+  		}
+  		if (err.code === "ER_CON_COUNT_ERROR") {
+  			console.error("Database has too many connections.");
+  		}
+  		if (err.code === "ECONNREFUSED") {
+  			console.error("Database connection was refused.");
+  		}
+  	}
 
-    if (connection) connection.release();
-    return;
+  	if (connection) connection.release();
+  	return;
   });
 
   module.exports = pool;
   ```
+
+  Now you can access it in your "models"
+  -Routes - Data coming in from front end (request, response)
+  -Models - actually interact with Databse itself.
+  -Model are where you w
+  api call hits routes, middleware, data is passed off to model, model handles it from there.
 
 - Then any route can access it with the following code:
 
@@ -42,13 +54,22 @@ There are a LOT of different things to bear in mind with pooling but what is poo
 
   //Obviously the query can be anything you want it to be this is just an example.
   pool.query(
-    "SELECT * FROM POSTS WHERE userId = ?",
-    req.params.userId,
-    (err, results, field) => {
-      res.send(results);
-    }
+  	"SELECT * FROM POSTS WHERE userId = ?",
+  	req.params.userId,
+  	(err, results, field) => {
+  		res.send(results);
+  	},
   );
   ```
+
+  -With async/await:
+
+  try{
+    const posts = await
+  }
+  catch(err) {
+    res.send(err)
+  }
 
 - Ideally however you would move the queries into their own functions specific to the posts or users or whatever.
 - This might look like (in the models file for posts):
@@ -70,7 +91,14 @@ There are a LOT of different things to bear in mind with pooling but what is poo
   //At the top import the posts functions from the file
 
   router.get("/posts/:userId", anyMiddleWare, (req, res) => {
-    //The below is an example but it can be whatever way you import it you'd like
-    postsFunctions.getPostsById(res, req.params.userId);
+  	//The below is an example but it can be whatever way you import it you'd like
+  	postsFunctions.getPostsById(res, req.params.userId);
   });
   ```
+
+  -sign up - see if a user exists with SQL query. If it dpoes not, go to necxt step.
+  -If sign up...hash password, add to DB
+  -to login, comapre hashed pass t passs.
+  -Ad favorites...PUT request...did they provdie the info? If yes, the Model tries toadd it to DB with a SQL query.
+
+
